@@ -1,0 +1,12 @@
+# IDE
+.vscode/
+.idea/
+
+# Cache
+__pycache__/
+.ruff_cache
+
+# Project stuff
+tests/
+test/
+test.py
