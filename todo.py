@@ -8,19 +8,25 @@ from pathlib import Path
 
 TODO_PREFIX = b'TODO:'
 
-EXCLUDED_FOLDERNAMES_LIST = {
+DEFAULT_EXCLUDED_FOLDERS = {
+    # IDE stuff
+    '.idea',
+    '.vscode',
+    # Cache
+    '__pycache__',
+    '.ruff_cache',
+    # venvs
     '.venv',
     'venv',
     '.env',
     'env',
+    # git
     '.git',
+    # Other
     'tests',
-    '.idea',
-    '.vscode',
-    '.ruff_cache',
 }
 
-EXCLUDED_FILENAMES_LIST = {
+DEFAULT_EXCLUDED_FILES = {
     '.env',
 }
 
@@ -45,62 +51,109 @@ def error(content: str, crash: bool = False) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Search for TODO comments in files.",
+        description="Search for TODO comments in files",
         add_help=True
     )
-    parser.add_argument('startpath', nargs='?', default='.',
-                        help="Path to file or directory (default: current directory)")
-    parser.add_argument('-i', '--ignore-case', action='store_true',
-                        help="Enable ignoring case")
+    parser.add_argument(
+        'path',
+        nargs='?',
+        default='.',
+        help="Path to file or directory (default: current directory)"
+    )
+    parser.add_argument(
+        '-i',
+        '--ignore-case',
+        action='store_true',
+        help="Enable ignoring case"
+    )
+    parser.add_argument(
+        '-xf',
+        '--exclude-files',
+        nargs='+',
+        help="List of file names to exclude from search"
+    )
+    parser.add_argument(
+        '-xd',
+        '--exclude-dirs',
+        nargs='+',
+        help="List of directory names to exclude from search"
+    )
+    parser.add_argument(
+        '-xo',
+        '--exclude-default-off',
+        action='store_true',
+        help="Disable built-in default exclusions (e.g., .git, __pycache__, venv, etc.)"
+    )
+
     return parser.parse_args()
 
 
-def find_prefix(prefix: bytes, line: bytes, ignore_case: bool = False) -> bool:
-    # Changing the value of a variable every time is not a good idea.
-    if ignore_case:
-        prefix = prefix.lower()
+def find_prefix(line: bytes, settings: dict) -> bool:
+    if settings['ignore_case']:
         line = line.lower()
-    return prefix in line
+    return settings['todo_prefix'] in line
 
 
-def process_file(filepath: Path, ignore_case: bool = False) -> list[TodoInfo]:
+def process_file(filepath: Path, settings: dict) -> list[TodoInfo]:
     todos = []
     try:
         with open(filepath, 'rb') as f:
             file_text = f.readlines()
         for num, line in enumerate(file_text, 1):
-            if find_prefix(TODO_PREFIX, line, ignore_case):
+            if find_prefix(line, settings):
                 todos.append(TodoInfo(filepath, num, line))
     except OSError:
         error(f'Could not read file "{filepath}"')
     return todos
 
 
-def process_directory(root_path: Path, ignore_case: bool = False) -> list[TodoInfo]:
+def process_directory(root_path: Path, settings: dict) -> list[TodoInfo]:
     todos = []
     for root, dirs, files in os.walk(root_path):
-        dirs[:] = [d for d in dirs if d not in EXCLUDED_FOLDERNAMES_LIST]
+        dirs[:] = [d for d in dirs if d not in settings['excluded_folders']]
         for file in files:
-            if file not in EXCLUDED_FILENAMES_LIST:
+            if file not in settings['excluded_files']:
                 filepath = Path(root) / file
-                todos.extend(process_file(filepath, ignore_case))
+                todos.extend(process_file(filepath, settings))
     return todos
+
+
+def process_settings(args: argparse.Namespace) -> dict:
+    if args.exclude_default_off:
+        excluded_folders = set()
+        excluded_files = set()
+    else:
+        excluded_folders = DEFAULT_EXCLUDED_FOLDERS
+        excluded_files = DEFAULT_EXCLUDED_FILES
+
+    if args.exclude_dirs is not None:
+        excluded_folders |= set(args.exclude_dirs)
+    if args.exclude_files is not None:
+        excluded_files |= set(args.exclude_files)
+
+    return {
+        'path': args.path,
+        'ignore_case': args.ignore_case,
+        'todo_prefix': TODO_PREFIX.lower() if args.ignore_case else TODO_PREFIX,
+        'excluded_folders': excluded_folders,
+        'excluded_files': excluded_files,
+    }
 
 
 def main():
     start_time = time.perf_counter()
 
-    args = parse_args()
+    settings = process_settings(parse_args())
 
-    start_path = Path(args.startpath)
+    start_path = Path(settings['path'])
     
     if not start_path.exists():
         error(f'File or directory "{start_path}" does not exist', True)
     
     if start_path.is_file():
-        found_todos = process_file(start_path, args.ignore_case)
+        found_todos = process_file(start_path, settings)
     else:
-        found_todos = process_directory(start_path, args.ignore_case)
+        found_todos = process_directory(start_path, settings)
 
     for todo in found_todos:
         print(todo)
