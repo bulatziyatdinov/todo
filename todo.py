@@ -23,7 +23,7 @@ DEFAULT_EXCLUDED_FOLDERS = {
     # git
     '.git',
     # Other
-    'tests',
+    # 'tests',
 }
 
 DEFAULT_EXCLUDED_FILES = {
@@ -64,7 +64,7 @@ def parse_args() -> argparse.Namespace:
         '-i',
         '--ignore-case',
         action='store_true',
-        help="Enable ignoring case"
+        help="Ignores the case of text in the file and the prefix"
     )
     parser.add_argument(
         '-xf',
@@ -82,7 +82,7 @@ def parse_args() -> argparse.Namespace:
         '-xo',
         '--exclude-default-off',
         action='store_true',
-        help="Disable built-in default exclusions (e.g., .git, __pycache__, venv, etc.)"
+        help="Disable built-in default exclusions for files and directories"
     )
 
     return parser.parse_args()
