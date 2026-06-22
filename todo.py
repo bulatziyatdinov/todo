@@ -23,6 +23,8 @@ DEFAULT_EXCLUDED_FOLDERS = {
     # git
     '.git',
     # Other
+    'build'
+    'dist'
     # 'tests',
 }
 
@@ -39,8 +41,8 @@ class TodoInfo:
         self.line_str = line_str
 
     def __str__(self):
-        return (f"{self.filepath}:{self.line_number} -> "
-                f"{self.line_str.strip().decode('utf-8', errors='replace')}")
+        return (f'{self.filepath}:{self.line_number} -> '
+                f'{self.line_str.strip().decode('utf-8', errors='replace')}')
 
 
 def error(content: str, crash: bool = False) -> None:
@@ -51,38 +53,38 @@ def error(content: str, crash: bool = False) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Search for TODO comments in files",
+        description='Search for TODO comments in files',
         add_help=True
     )
     parser.add_argument(
         'path',
         nargs='?',
         default='.',
-        help="Path to file or directory (default: current directory)"
+        help='Path to file or directory (default: current directory)'
     )
     parser.add_argument(
         '-i',
         '--ignore-case',
         action='store_true',
-        help="Ignores the case of text in the file and the prefix"
+        help='Ignores the case of text in the file and the prefix'
     )
     parser.add_argument(
         '-xf',
         '--exclude-files',
         nargs='+',
-        help="List of file names to exclude from search"
+        help='List of file names to exclude from search'
     )
     parser.add_argument(
         '-xd',
         '--exclude-dirs',
         nargs='+',
-        help="List of directory names to exclude from search"
+        help='List of directory names to exclude from search'
     )
     parser.add_argument(
         '-xo',
         '--exclude-default-off',
         action='store_true',
-        help="Disable built-in default exclusions for files and directories"
+        help='Disable built-in default exclusions for files and directories'
     )
 
     return parser.parse_args()
@@ -107,7 +109,7 @@ def process_file(filepath: Path, settings: dict) -> list[TodoInfo]:
     return todos
 
 
-def process_directory(root_path: Path, settings: dict) -> list[TodoInfo]:
+def process_directories(root_path: Path, settings: dict) -> list[TodoInfo]:
     todos = []
     for root, dirs, files in os.walk(root_path):
         dirs[:] = [d for d in dirs if d not in settings['excluded_folders']]
@@ -146,20 +148,19 @@ def main():
     settings = process_settings(parse_args())
 
     start_path = Path(settings['path'])
-    
+
     if not start_path.exists():
         error(f'File or directory "{start_path}" does not exist', True)
-    
+
     if start_path.is_file():
         found_todos = process_file(start_path, settings)
     else:
-        found_todos = process_directory(start_path, settings)
+        found_todos = process_directories(start_path, settings)
 
-    for todo in found_todos:
-        print(todo)
+    print('\n'.join(map(str, found_todos)) + '\n' * (len(found_todos) > 0), end='')
 
     total_time = time.perf_counter() - start_time
-    print(('-' * 40 + '\n')* (len(found_todos) > 0) +
+    print(('-' * 40 + '\n') * (len(found_todos) > 0) +
           f'Total TODO count: {len(found_todos)} | Time: {total_time * 1000:.3f} ms')
 
 

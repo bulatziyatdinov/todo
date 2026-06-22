@@ -6,12 +6,10 @@
 
 A script to search for ``TODO`` notes in a project. It requires no external dependencies. Runs on Python 3.12+.
 
-Recursively scans files, prints each `TODO:` along with its file path and line number - helping you keep track of pending tasks across your codebase.
-
 ## Features
 
-- **Recursive search** – scans all files in a directory (or a single file) for `TODO:` comments.
 - **Clear output** – shows file path and line number for each match.
+- **Recursive search** – scans all files in a directory (or a single file) for `TODO:` comments.
 - **Case‑insensitive mode** – use `-i` to match `todo:` regardless of case.
 - **Exclusion support** – skip default folders (`.git`, `__pycache__`, venvs, etc.) or add your own with `-xd` / `-xf`.
 - **No external dependencies** – runs on Python 3.12+ with only the standard library.
@@ -31,14 +29,14 @@ _If no path is given, the script searches the current directory._
 
 ### Options
 
-| Option                            | Description
-|-----------------------------------|-------------------------------------------------------
-| `path`                            | File or directory to search (default: `.`)
-| `-i`, `--ignore-case`             | Match `TODO` case‑insensitively
-| `-xf`, `--exclude-files`          | Space‑separated list of file names to exclude
-| `-xd`, `--exclude-dirs`           | Space‑separated list of directory names to exclude
-| `-xo`, `--exclude-default-off`    | Disable built‑in default exclusions
-| `-h`, `--help`                    | Show help message
+| Option                         | Description                                        |
+|--------------------------------|----------------------------------------------------|
+| `path`                         | File or directory to search (default: `.`)         |
+| `-i`, `--ignore-case`          | Match `TODO` case‑insensitively                    |
+| `-xf`, `--exclude-files`       | Space‑separated list of file names to exclude      |
+| `-xd`, `--exclude-dirs`        | Space‑separated list of directory names to exclude |
+| `-xo`, `--exclude-default-off` | Disable built‑in default exclusions                |
+| `-h`, `--help`                 | Show help message                                  |
 
 ### Example
 
@@ -54,21 +52,6 @@ Exclude folders (build, dist) and files (.env, config.py), ignore case (-i) and 
 python todo.py -xd build dist -xf .env config.py -i -xo
 ```
 
-### Default Exclusions
-
-The script skips the following folders and files by default:
-
-**Excluded folders:**
-
-- `.idea`, `.vscode` – IDE settings
-- `__pycache__`, `.ruff_cache` – cache directories
-- `.venv`, `venv`, `.env`, `env` – virtual environments
-- `.git` – version control
-
-**Excluded files:**
-
-- `.env` – environment variables file
-
 _You can add your own exclusions with `-xd` and `-xf`, or disable all defaults with `-xo`._
 
 ## Installation
@@ -81,7 +64,13 @@ _You can add your own exclusions with `-xd` and `-xf`, or disable all defaults w
 git clone https://github.com/bulatziyatdinov/todo
 ```
 
-2. Use everywhere
+2. Move into folder
+
+```bash
+cd todo
+```
+
+3. Create `todo` command
 
 - For Linux:
 
@@ -93,12 +82,27 @@ chmod +x todo.py
 sudo mv todo.py /usr/local/bin/todo
 ```
 
-- For Windows (Powershell):
+- For Windows (PowerShell):
 
 ```bash
-Set-Alias todo "python C:\<path_to_file>\todo.py"
+Add-Content -Path $PROFILE -Value ("`nfunction todo { python '" + (Get-Location).Path + "\todo.py' $args }"); . $PROFILE
 ```
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Other
+
+### Default Exclusions
+
+The script skips the following folders and files by default:
+
+**Excluded folders:**
+
+- `.idea`, `.vscode`, `__pycache__`, `.ruff_cache`, `.venv`, `venv`, `.env`, `env`, 
+`.git`, `build`, `dist`.
+
+**Excluded files:**
+
+- `.env`
