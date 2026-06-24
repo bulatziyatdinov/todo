@@ -1,6 +1,6 @@
 # TODO
 
-![Python Version](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
+![Python 3.12+](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
 ![No Dependencies](https://img.shields.io/badge/Dependencies-None-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -52,7 +52,8 @@ Exclude folders (build, dist) and files (.env, config.py), ignore case (-i) and 
 python todo.py -xd build dist -xf .env config.py -i -xo
 ```
 
-_You can add your own exclusions with `-xd` and `-xf`, or disable all defaults with `-xo`._
+After installation according to the Installation section, 
+you can use simple `todo` instead of `python todo.py`.
 
 ## Installation
 
@@ -98,11 +99,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 The script skips the following folders and files by default:
 
-**Excluded folders:**
-
-- `.idea`, `.vscode`, `__pycache__`, `.ruff_cache`, `.venv`, `venv`, `.env`, `env`, 
+**Excluded folders:** `.idea`, `.vscode`, `__pycache__`, `.ruff_cache`, `.venv`, `venv`, `.env`, `env`, 
 `.git`, `build`, `dist`.
 
-**Excluded files:**
-
-- `.env`
+**Excluded files:** `.env`.
