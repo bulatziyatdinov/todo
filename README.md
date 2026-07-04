@@ -15,9 +15,9 @@ A script to search for ``TODO`` notes in a project. It requires no external depe
 - **No external dependencies** – runs on Python 3.12+ with only the standard library.
 - **Performance stats** – prints total TODO count and execution time in milliseconds.
 
-## Demo
+## Screenshot
 
-![demo](https://images2.imgbox.com/44/5c/knjTMbUa_o.png)
+![Screenshot](https://images2.imgbox.com/44/5c/knjTMbUa_o.png)
 
 ## Usage
 
@@ -105,7 +105,7 @@ the -xo, -xd, -xf, and -xe options (see **Usage** section):
 **Excluded folders:** 
 
 - IDE: .idea, .vscode
-- Cache: __pycache__, .ruff_cache, .pytest_cache, .mypy_cache
+- Cache: \_\_pycache__, .ruff_cache, .pytest_cache, .mypy_cache
 - Venvs: .venv, venv, .env, env
 - Other: .git, build, dist, bin, .DS_Store
 
