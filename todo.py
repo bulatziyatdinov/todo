@@ -10,26 +10,39 @@ TODO_PREFIX = b'TODO:'
 
 DEFAULT_EXCLUDED_FOLDERS = {
     # IDE stuff
-    '.idea',
-    '.vscode',
+    '.idea', '.vscode',
     # Cache
-    '__pycache__',
-    '.ruff_cache',
+    '__pycache__', '.ruff_cache', '.pytest_cache', '.mypy_cache',
     # venvs
-    '.venv',
-    'venv',
-    '.env',
-    'env',
-    # git
-    '.git',
+    '.venv', 'venv', '.env', 'env',
     # Other
-    'build'
-    'dist'
-    # 'tests',
+    '.git', 'build', 'dist', 'bin', '.DS_Store',
 }
 
 DEFAULT_EXCLUDED_FILES = {
+    '.env', '.env.local', '.env.test',
+    '.gitignore',
+}
+
+DEFAULT_EXCLUDED_EXTENSIONS = {
+    # Text
+    '.pdf', '.md', '.txt', '.log',
+    # Data sources
+    '.json', '.csv', '.docx', '.doc', '.xlsx',  '.xls',
+    # Databases
+    '.db', '.sqlite3',
+    # Media
+    '.mp4', '.avi', '.mov', '.mkv',
+    '.mp3', '.wav', '.ogg',
+    '.png', '.jpeg', '.jpg', '.svg', '.ico', '.bmp',
+    # Other
     '.env',
+    '.lock',
+    '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz', '.tgz', '.zst',
+    '.temp', '.tmp',
+    '.pickle', '.pkl',
+    '.dat',
+    '.bin', '.exe', '.dll', '.so',
 }
 
 
@@ -72,19 +85,25 @@ def parse_args() -> argparse.Namespace:
         '-xf',
         '--exclude-files',
         nargs='+',
-        help='List of file names to exclude from search'
+        help='List of file names to exclude from search. Example: error.log notes.txt'
     )
     parser.add_argument(
         '-xd',
         '--exclude-dirs',
         nargs='+',
-        help='List of directory names to exclude from search'
+        help='List of directory names to exclude from search. Example: tests data'
+    )
+    parser.add_argument(
+        '-xe',
+        '--exclude-extensions',
+        nargs='+',
+        help='List of file extensions to exclude from search. Example: .pdf .txt'
     )
     parser.add_argument(
         '-xo',
         '--exclude-default-off',
         action='store_true',
-        help='Disable built-in default exclusions for files and directories'
+        help='Disable built-in default exclusions for files, directories and extensions'
     )
 
     return parser.parse_args()
@@ -114,7 +133,8 @@ def process_directories(root_path: Path, settings: dict) -> list[TodoInfo]:
     for root, dirs, files in os.walk(root_path):
         dirs[:] = [d for d in dirs if d not in settings['excluded_folders']]
         for file in files:
-            if file not in settings['excluded_files']:
+            if (file not in settings['excluded_files']) \
+                    and (Path(file).suffix not in settings['excluded_extensions']):
                 filepath = Path(root) / file
                 todos.extend(process_file(filepath, settings))
     return todos
@@ -124,14 +144,18 @@ def process_settings(args: argparse.Namespace) -> dict:
     if args.exclude_default_off:
         excluded_folders = set()
         excluded_files = set()
+        excluded_extensions = set()
     else:
         excluded_folders = DEFAULT_EXCLUDED_FOLDERS
         excluded_files = DEFAULT_EXCLUDED_FILES
+        excluded_extensions = DEFAULT_EXCLUDED_EXTENSIONS
 
     if args.exclude_dirs is not None:
         excluded_folders |= set(args.exclude_dirs)
     if args.exclude_files is not None:
         excluded_files |= set(args.exclude_files)
+    if args.exclude_extensions is not None:
+        excluded_extensions |= set(args.exclude_extensions)
 
     return {
         'path': args.path,
@@ -139,6 +163,7 @@ def process_settings(args: argparse.Namespace) -> dict:
         'todo_prefix': TODO_PREFIX.lower() if args.ignore_case else TODO_PREFIX,
         'excluded_folders': excluded_folders,
         'excluded_files': excluded_files,
+        'excluded_extensions': excluded_extensions,
     }
 
 

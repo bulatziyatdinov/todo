@@ -35,6 +35,7 @@ _If no path is given, the script searches the current directory._
 | `-i`, `--ignore-case`          | Match `TODO` case‑insensitively                    |
 | `-xf`, `--exclude-files`       | Space‑separated list of file names to exclude      |
 | `-xd`, `--exclude-dirs`        | Space‑separated list of directory names to exclude |
+| `-xe`, `--exclude-extensions`  | Space‑separated list of file extensions to exclude |
 | `-xo`, `--exclude-default-off` | Disable built‑in default exclusions                |
 | `-h`, `--help`                 | Show help message                                  |
 
@@ -97,9 +98,24 @@ This project is licensed under the [MIT License](LICENSE).
 
 ### Default Exclusions
 
-The script skips the following folders and files by default:
+The script skips the following folders, files, and file extensions by default 
+to avoid scanning irrelevant or generated content. You can override these lists using 
+the -xo, -xd, -xf, and -xe options (see **Usage** section):
 
-**Excluded folders:** `.idea`, `.vscode`, `__pycache__`, `.ruff_cache`, `.venv`, `venv`, `.env`, `env`, 
-`.git`, `build`, `dist`.
+**Excluded folders:** 
 
-**Excluded files:** `.env`.
+- IDE: .idea, .vscode
+- Cache: __pycache__, .ruff_cache, .pytest_cache, .mypy_cache
+- Venvs: .venv, venv, .env, env
+- Other: .git, build, dist, bin, .DS_Store
+
+**Excluded files:** .env, .env.local, .env.test, .gitignore
+
+**Excluded file extensions:** 
+
+- Text: .pdf, .md, .txt, .log, .docx, .doc
+- Data Sources: .json, .csv, .xlsx, .xls
+- Databases: .db, .sqlite3
+- Media: .mp4, .avi, .mov, .mkv, .mp3, .wav, .ogg, .png, .jpeg, .jpg, .svg, .ico, .bmp
+- Other: .env, .lock, .zip, .rar, .7z, .tar, .gz, .bz2, .xz, .tgz, .zst, .temp, .tmp 
+.pickle, .pkl, .dat, .bin, .exe, .dll, .so
